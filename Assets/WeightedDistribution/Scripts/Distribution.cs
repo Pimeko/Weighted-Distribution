@@ -10,7 +10,7 @@ namespace WeightedDistribution
     {
         [SerializeField]
         float weight;
-        public float Weight { get { return weight; } set { if (weight >= 0) weight = value; } }
+        public float Weight { get { return weight; } set { weight = value; } }
 
         public float CombinedWeight { get; set; }
 
@@ -38,15 +38,22 @@ namespace WeightedDistribution
             // On Add Component
             if (items == null)
                 return;
-
+            
             // On Add Item
-            if (items.Count > nbItems)
+            if (!addedItem && items.Count > nbItems)
+                items[items.Count - 1].Weight = 0;
+
+            bool atLeastOnePositiveValue = false;
+            foreach (T_ITEM item in items)
             {
-                if (items.Count == 1)
-                    items[0].Weight = 1;
-                else if (!addedItem)
-                    items[items.Count - 1].Weight = 0;
+                if (item.Weight < 0)
+                    item.Weight = 0;
+                if (item.Weight > 0)
+                    atLeastOnePositiveValue = true;
             }
+            
+            if (items.Count > 0 && (items.Count == 1 || !atLeastOnePositiveValue))
+                items[0].Weight = 1;
 
             ComputePercentages();
             nbItems = items.Count;
